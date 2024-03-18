@@ -1,0 +1,93 @@
+#include <kipr/wombat.h>
+int leftPower = 100; //find power
+int rightPower = 100; //find power
+int turnPower = 60; //find power
+
+void pickUpRock();
+void trackLine();
+void drive();
+void turnLeft();
+void turnRight();
+void stop();
+
+int main()
+{
+    create_connect();
+    //0-15s Push food and fertilizer to zone 3, pick up first rock
+    drive(1200);
+    turnRight(26);
+    drive(-650);
+    turnLeft(80);
+    drive(200);
+    turnRight(34);
+    drive(-230);
+    turnRight(70);
+    drive(-200);
+    turnRight(70);
+    
+    //15-45s Collect next 3 rocks
+    
+    
+    //45-60s Collect last rock
+    
+    
+    //60-75s Push fuel into zone 5
+    //trackLine(200);
+    
+    //105-120s Push rocks into heap
+    create_stop();
+    create_disconnect();
+    return 0;
+}
+
+void trackLine(int time) {
+    int x = 0;
+    while(x < time) { //find way to track time
+        create_drive_direct(leftPower, rightPower);
+        if(get_create_lfcliff_amt() > 1000) {
+            create_drive_direct(leftPower, rightPower/5);
+            msleep(10);
+        }
+        if(get_create_lfcliff_amt() < 1000) {
+            create_drive_direct(leftPower/5, rightPower);
+            msleep(10);
+        }
+        x++;
+    }
+}
+
+void drive(int distance) {
+    set_create_distance(0);
+    if(distance > 0) {
+        while(get_create_distance() < distance) {
+        create_drive_direct(leftPower, rightPower);
+            msleep(10);
+        }
+    } else if(distance < 0) {
+    	while(get_create_distance() > distance) {
+        create_drive_direct(-leftPower, -rightPower);
+        msleep(10);
+        }
+    } else {
+        create_drive_direct(0,0);
+        msleep(10);
+    }
+}
+
+void turnLeft(int angle) {
+    set_create_total_angle(0);
+    while(abs(get_create_total_angle()) < angle) {
+        create_drive_direct(-turnPower, turnPower);
+    }
+}
+
+void turnRight(int angle) {
+    set_create_total_angle(0);
+    while(abs(get_create_total_angle()) < angle) {
+        create_drive_direct(turnPower, -turnPower);
+    }
+}
+
+void stop() {
+    drive(0);
+}
